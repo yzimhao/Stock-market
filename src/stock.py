@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # coding=utf8
-# 
+
 import requests
+import ConfigParser
+
+# import curses
 import os, time
 
 
@@ -9,7 +12,7 @@ import os, time
 
 def clear_display():
     # printf "\ec"
-    os.system('printf "\ec"')
+    os.system('printf "\033c"')
 
 def show_template(hq):
 
@@ -39,19 +42,46 @@ def show_template(hq):
     
     _range = float(hq[3]) - float(hq[2])
     _range_rate = _range/float(hq[2]) * 100
-    print "name: %s, n: %s, t: %s, y: %s, r: %s(%.2f)" % (hq[0], hq[3], hq[1], hq[2], str(_range), _range_rate)
+    
+    _res = []
+    _res.append("name: %s, n: %s, t: %s, y: %s, r: %s(%.2f)" % (hq[0], hq[3], hq[1], hq[2], str(_range), _range_rate) )
 
-    print "sale: %s(%s),  %s(%s),  %s(%s),  %s(%s),  %s(%s)" % (hq[21],hq[20],hq[23], hq[22],hq[25],hq[24],hq[27],hq[26],hq[29],hq[28])
-    print " buy: %s(%s),  %s(%s),  %s(%s),  %s(%s),  %s(%s)" % (hq[11],hq[10],hq[13], hq[12],hq[15],hq[14],hq[17],hq[16],hq[19],hq[18])
+    _res.append("sale: %s(%s),  %s(%s),  %s(%s),  %s(%s),  %s(%s)" % (hq[21],hq[20],hq[23], hq[22],hq[25],hq[24],hq[27],hq[26],hq[29],hq[28]) )
+    _res.append(" buy: %s(%s),  %s(%s),  %s(%s),  %s(%s),  %s(%s)" % (hq[11],hq[10],hq[13], hq[12],hq[15],hq[14],hq[17],hq[16],hq[19],hq[18]) )
 
-
-while True:
-    res = requests.get(url="http://hq.sinajs.cn/list=sz002631")
-    hq = res.text.split("=")[1].replace('"', '').replace(";", '').split(",")
-    clear_display()
-    show_template(hq)
-    time.sleep(1)
+    return "\n".join(_res)
 
 
+def stock():
+    
+    cf = ConfigParser.SafeConfigParser()
+    cf.read("setting.conf")
+    sh = cf.get("stock", "SH").split(',')
+    sz = cf.get("stock", "SZ").split(',')
+
+    stock = []
+    for k, v in enumerate(sz):
+        stock.append("sz%s" % v)
+    for k, v in enumerate(sh):
+        stock.append("sh%s" % v)
+
+    
+
+    while True:
+        _print = []
+        for k, v in enumerate(stock):
+            res = requests.get(url="http://hq.sinajs.cn/list=%s" % v)
+            hq = res.text.split("=")[1].replace('"', '').replace(";", '').split(",")
+            _print.append(show_template(hq))
+            _print.append("---------------------------------------------------")
+        
+        clear_display()
+        print "\n".join(_print)
+        time.sleep(1)
 
 
+
+
+if __name__ == '__main__':
+    stock()
+    pass
