@@ -53,9 +53,10 @@ def show_template(hq):
 
 
 def stock():
-    
+    runpath = os.path.realpath(__file__)
+
     cf = ConfigParser.SafeConfigParser()
-    cf.read("setting.conf")
+    cf.read("%s/setting.conf" % os.path.dirname(runpath))
     sh = cf.get("stock", "SH").split(',')
     sz = cf.get("stock", "SZ").split(',')
 
@@ -87,4 +88,3 @@ def stock():
 
 if __name__ == '__main__':
     stock()
-    pass
