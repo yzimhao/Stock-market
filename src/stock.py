@@ -70,10 +70,13 @@ def stock():
     while True:
         _print = []
         for k, v in enumerate(stock):
-            res = requests.get(url="http://hq.sinajs.cn/list=%s" % v)
-            hq = res.text.split("=")[1].replace('"', '').replace(";", '').split(",")
-            _print.append(show_template(hq))
-            _print.append("---------------------------------------------------")
+            try:
+                res = requests.get(url="http://hq.sinajs.cn/list=%s" % v)
+                hq = res.text.split("=")[1].replace('"', '').replace(";", '').split(",")
+                _print.append(show_template(hq))
+            except Exception, e:
+                print e
+            _print.append("---------------------------------------------------------------")
         
         clear_display()
         print "\n".join(_print)
