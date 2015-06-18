@@ -52,13 +52,27 @@ def show_template(hq):
     return "\n".join(_res)
 
 
-def stock():
+def get_config(section, key):
     runpath = os.path.realpath(__file__)
 
     cf = ConfigParser.SafeConfigParser()
     cf.read("%s/setting.conf" % os.path.dirname(runpath))
-    sh = cf.get("stock", "SH").split(',')
-    sz = cf.get("stock", "SZ").split(',')
+    try:
+        val = cf.get(section, key)
+    except Exception, e:
+        val = None
+    finally:
+        return val
+
+
+def stock():
+    sh = []
+    sz = []
+
+    if get_config("stock", "SH") :
+        sh = get_config("stock", "SH").split(',')
+    if get_config("stock", "SZ") :
+        sz = get_config("stock", "SZ").split(',')
 
     stock = []
     for k, v in enumerate(sz):
